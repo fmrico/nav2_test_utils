@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(nav2_test_utils)
 
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)
@@ -20,11 +21,23 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(nav2_msgs REQUIRED)
+find_package(nav2_costmap_2d REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(visualization_msgs REQUIRED)
 
 set(dependencies
   rclcpp
   rclcpp_action
   nav2_msgs
+  nav2_costmap_2d
+  geometry_msgs
+  tf2_geometry_msgs
+  tf2
+  tf2_ros
+  visualization_msgs
 )
 
 add_executable(nav2_client_util
@@ -41,7 +54,14 @@ ament_target_dependencies(clicked_point_to_pose
   ${dependencies}
 )
 
-install(TARGETS nav2_client_util clicked_point_to_pose
+add_executable(context_detector
+  src/context_detector.cpp
+)
+ament_target_dependencies(context_detector
+  ${dependencies}
+)
+
+install(TARGETS nav2_client_util clicked_point_to_pose context_detector
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
