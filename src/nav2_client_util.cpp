@@ -36,11 +36,11 @@ public:
 
   }
 
-  void call_server(double x, double y, const std::string & bt) 
+  void call_server(double x, double y, const std::string & bt)
   {
     navigate_to_pose_client_ptr_ = rclcpp_action::create_client<NavigateToPose>(
       shared_from_this(), "navigate_to_pose");
-    
+
     if (!this->navigate_to_pose_client_ptr_->wait_for_action_server(std::chrono::seconds(10))) {
       RCLCPP_ERROR(get_logger(), "Action server not available after waiting");
       return;
@@ -48,7 +48,7 @@ public:
 
     auto goal_msg = NavigateToPose::Goal();
     goal_msg.behavior_tree = bt;
-    
+
     goal_msg.pose.header.stamp = now();
     goal_msg.pose.header.frame_id = "map";
 
@@ -64,12 +64,12 @@ public:
 
     send_goal_options.result_callback =
       std::bind(&Nav2Client::result_callback, this, _1);
-    
+
     auto goal_handle_future = navigate_to_pose_client_ptr_->async_send_goal(
       goal_msg, send_goal_options);
 
     if (rclcpp::spin_until_future_complete(shared_from_this(), goal_handle_future) !=
-      rclcpp::executor::FutureReturnCode::SUCCESS)
+      rclcpp::FutureReturnCode::SUCCESS)
     {
       RCLCPP_ERROR(get_logger(), "send_goal failed");
       return;
@@ -85,7 +85,7 @@ public:
 
 private:
   rclcpp_action::Client<NavigateToPose>::SharedPtr navigate_to_pose_client_ptr_;
-  
+
   void feedback_callback(
     GoalHandleNavigateToPose::SharedPtr,
     const std::shared_ptr<const NavigateToPose::Feedback> feedback)
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
   rclcpp::init(argc, argv);
 
   auto node = std::make_shared<Nav2Client>();
-  
+
   if (argc < 3) {
     std::cerr << "use " + std::string(argv[0]) + " x y bt" << std::endl;
     return 1;
@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 
   node->call_server(
     std::stod(argv[1]), std::stod(argv[2]), bt);
-  
+
   rclcpp::spin(node);
 
   rclcpp::shutdown();
